@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Puzzle, User, ArithmeticPuzzle, GeometryPuzzle, LogicPuzzle, AlgebraPuzzle } from '../types';
 import { cn } from '@/lib/utils';
-import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye, Users as UsersIcon } from 'lucide-react';
+import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye, UsersIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import { generateRandomPuzzle } from '../utils/puzzleGenerator';
@@ -27,6 +28,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   const [hintsUsed, setHintsUsed] = useState<number>(0);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [showHint, setShowHint] = useState<boolean>(false);
+  const [showSolution, setShowSolution] = useState<boolean>(false);
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -68,6 +70,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     setHintsUsed(0);
     setElapsedTime(0);
     setShowHint(false);
+    setShowSolution(false);
   };
   
   const goToNextPuzzle = () => {
@@ -75,6 +78,11 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     if (onComplete) {
       onComplete(nextLevel);
     }
+  };
+  
+  const viewSolution = () => {
+    setShowSolution(true);
+    toast.info("Solution revealed.");
   };
   
   const generateHint = (): string => {
@@ -136,6 +144,22 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     }
     
     return null;
+  };
+  
+  const renderSolution = () => {
+    if (!showSolution) return null;
+    
+    return (
+      <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3 text-blue-800 dark:text-blue-300 text-sm">
+        <div className="flex items-start">
+          <Eye size={16} className="mr-2 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-medium">Solution:</p>
+            <p className="mt-1">{puzzle.solution}</p>
+          </div>
+        </div>
+      </div>
+    );
   };
   
   return (
@@ -210,6 +234,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
               </div>
             </div>
           )}
+          
+          {renderSolution()}
         </div>
         
         <div className="mb-6">
@@ -276,7 +302,10 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                       <button onClick={resetPuzzle} className="text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 px-3 py-1 rounded-md transition-colors">
                         Try Again
                       </button>
-                      <button className="text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:text-red-300 dark:bg-red-900/40 dark:hover:bg-red-900/60 px-3 py-1 rounded-md transition-colors flex items-center">
+                      <button 
+                        onClick={viewSolution} 
+                        className="text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:text-red-300 dark:bg-red-900/40 dark:hover:bg-red-900/60 px-3 py-1 rounded-md transition-colors flex items-center"
+                      >
                         <Eye size={14} className="mr-1" />
                         View Solution
                       </button>
