@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Puzzle, User, ArithmeticPuzzle, GeometryPuzzle, LogicPuzzle, AlgebraPuzzle } from '../types';
 import { cn } from '@/lib/utils';
-import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye } from 'lucide-react';
+import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye, Users as UsersIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import { generateRandomPuzzle } from '../utils/puzzleGenerator';
@@ -11,12 +10,16 @@ interface PuzzleBoardProps {
   puzzle: Puzzle;
   level?: number;
   onComplete?: (nextLevel: number) => void;
+  currentUser?: User;
+  collaborators?: User[];
 }
 
 const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ 
   puzzle, 
   level = 1,
-  onComplete
+  onComplete,
+  currentUser,
+  collaborators = []
 }) => {
   const navigate = useNavigate();
   const [answer, setAnswer] = useState<string>('');
@@ -25,7 +28,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [showHint, setShowHint] = useState<boolean>(false);
   
-  // Timer for tracking puzzle attempt time
   useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTime(prev => prev + 1);
@@ -34,18 +36,15 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     return () => clearInterval(timer);
   }, []);
   
-  // Format time as mm:ss
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Handle submitting an answer
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple comparison - in a real app would need more sophisticated checking
     const correctAnswer = 'solution' in puzzle ? String(puzzle.solution) : '';
     const isAnswerCorrect = answer.trim().toLowerCase() === correctAnswer.toLowerCase();
     
@@ -56,7 +55,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     }
   };
   
-  // Get a hint (would be more sophisticated in a real app)
   const getHint = () => {
     if (hintsUsed < puzzle.hintCount) {
       setHintsUsed(prev => prev + 1);
@@ -64,7 +62,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     }
   };
   
-  // Reset the puzzle attempt
   const resetPuzzle = () => {
     setAnswer('');
     setIsCorrect(null);
@@ -73,7 +70,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     setShowHint(false);
   };
   
-  // Move to next puzzle
   const goToNextPuzzle = () => {
     const nextLevel = level + 1;
     if (onComplete) {
@@ -81,7 +77,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     }
   };
   
-  // Generate a simple hint based on puzzle type
   const generateHint = (): string => {
     if ('equation' in puzzle) {
       return "Try to isolate the variable and solve step by step.";
@@ -95,14 +90,9 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     return "Break down the problem into smaller parts.";
   };
 
-  // Render puzzle-specific content based on type
   const renderPuzzleContent = () => {
-    const arithmeticPuzzle = puzzle as ArithmeticPuzzle;
-    const geometryPuzzle = puzzle as GeometryPuzzle;
-    const logicPuzzle = puzzle as LogicPuzzle;
-    const algebraPuzzle = puzzle as AlgebraPuzzle;
-
-    if (arithmeticPuzzle.equation) {
+    if (puzzle.type === 'arithmetic') {
+      const arithmeticPuzzle = puzzle as ArithmeticPuzzle;
       return (
         <div className="mt-4 text-center text-xl font-medium text-primary py-2">
           {arithmeticPuzzle.equation}
@@ -110,7 +100,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       );
     }
     
-    if (geometryPuzzle.shapes) {
+    if (puzzle.type === 'geometry') {
+      const geometryPuzzle = puzzle as GeometryPuzzle;
       return (
         <div className="mt-4 text-center">
           <div className="inline-block bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
@@ -122,7 +113,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       );
     }
     
-    if (logicPuzzle.statements) {
+    if (puzzle.type === 'logic') {
+      const logicPuzzle = puzzle as LogicPuzzle;
       return (
         <ul className="mt-4 space-y-2 list-disc list-inside">
           {logicPuzzle.statements.map((statement, index) => (
@@ -132,7 +124,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       );
     }
     
-    if (algebraPuzzle.equations) {
+    if (puzzle.type === 'algebra') {
+      const algebraPuzzle = puzzle as AlgebraPuzzle;
       return (
         <div className="mt-4 text-center space-y-2">
           {algebraPuzzle.equations.map((equation, index) => (
@@ -173,18 +166,15 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       </div>
       
       <div className="p-6">
-        {/* Problem statement */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">Problem</h3>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
             <p className="text-gray-800 dark:text-gray-200">{puzzle.problemStatement}</p>
             
-            {/* Display puzzle specific content based on type */}
             {renderPuzzleContent()}
           </div>
         </div>
         
-        {/* Hints section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Hints</h3>
@@ -222,7 +212,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           )}
         </div>
         
-        {/* Answer submission */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">Your Answer</h3>
           
@@ -299,7 +288,6 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           )}
         </div>
         
-        {/* Difficulty indicator */}
         <div>
           <h3 className="text-lg font-semibold mb-3">Difficulty</h3>
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-4">

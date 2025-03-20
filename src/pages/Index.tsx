@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { PuzzleType, DifficultyLevel } from '../types';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
-import { ChevronRight, Calculator, Ruler, Brain, Function } from 'lucide-react';
+import { ChevronRight, Calculator, Ruler, Brain, FunctionSquare } from 'lucide-react';
 
 const Index = () => {
   const puzzleTypes: { type: PuzzleType; title: string; description: string; icon: React.ReactNode; color: string }[] = [
@@ -33,7 +33,7 @@ const Index = () => {
       type: 'algebra',
       title: 'Algebra Puzzles',
       description: 'Solve for unknown variables in these challenging algebraic equations and systems.',
-      icon: <Function className="h-8 w-8" />,
+      icon: <FunctionSquare className="h-8 w-8" />,
       color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
     }
   ];
