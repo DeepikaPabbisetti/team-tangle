@@ -2,20 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { Puzzle, User, ArithmeticPuzzle, GeometryPuzzle, LogicPuzzle, AlgebraPuzzle } from '../types';
 import { cn } from '@/lib/utils';
-import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye, UsersIcon } from 'lucide-react';
-import UserProfile from './UserProfile';
+import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from "sonner";
+import { generateRandomPuzzle } from '../utils/puzzleGenerator';
 
 interface PuzzleBoardProps {
   puzzle: Puzzle;
-  currentUser: User;
-  collaborators?: User[];
+  level?: number;
+  onComplete?: (nextLevel: number) => void;
 }
 
 const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ 
   puzzle, 
-  currentUser, 
-  collaborators = [] 
+  level = 1,
+  onComplete
 }) => {
+  const navigate = useNavigate();
   const [answer, setAnswer] = useState<string>('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [hintsUsed, setHintsUsed] = useState<number>(0);
@@ -47,6 +50,10 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     const isAnswerCorrect = answer.trim().toLowerCase() === correctAnswer.toLowerCase();
     
     setIsCorrect(isAnswerCorrect);
+    
+    if (isAnswerCorrect) {
+      toast.success("Correct! Moving to next level.");
+    }
   };
   
   // Get a hint (would be more sophisticated in a real app)
@@ -66,6 +73,14 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     setShowHint(false);
   };
   
+  // Move to next puzzle
+  const goToNextPuzzle = () => {
+    const nextLevel = level + 1;
+    if (onComplete) {
+      onComplete(nextLevel);
+    }
+  };
+  
   // Generate a simple hint based on puzzle type
   const generateHint = (): string => {
     if ('equation' in puzzle) {
@@ -82,20 +97,24 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
 
   // Render puzzle-specific content based on type
   const renderPuzzleContent = () => {
-    if ((puzzle as ArithmeticPuzzle).equation) {
+    const arithmeticPuzzle = puzzle as ArithmeticPuzzle;
+    const geometryPuzzle = puzzle as GeometryPuzzle;
+    const logicPuzzle = puzzle as LogicPuzzle;
+    const algebraPuzzle = puzzle as AlgebraPuzzle;
+
+    if (arithmeticPuzzle.equation) {
       return (
         <div className="mt-4 text-center text-xl font-medium text-primary py-2">
-          {(puzzle as ArithmeticPuzzle).equation}
+          {arithmeticPuzzle.equation}
         </div>
       );
     }
     
-    if ((puzzle as GeometryPuzzle).shapes) {
-      const shapes = (puzzle as GeometryPuzzle).shapes;
+    if (geometryPuzzle.shapes) {
       return (
         <div className="mt-4 text-center">
           <div className="inline-block bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-            {shapes.map((shape, index) => (
+            {geometryPuzzle.shapes.map((shape, index) => (
               <span key={index} className="text-2xl mr-2">{shape === 'rectangle' ? '□' : shape === 'circle' ? '○' : shape === 'triangle' ? '△' : '⬡'}</span>
             ))}
           </div>
@@ -103,22 +122,20 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
       );
     }
     
-    if ((puzzle as LogicPuzzle).statements) {
-      const statements = (puzzle as LogicPuzzle).statements;
+    if (logicPuzzle.statements) {
       return (
         <ul className="mt-4 space-y-2 list-disc list-inside">
-          {statements.map((statement, index) => (
+          {logicPuzzle.statements.map((statement, index) => (
             <li key={index} className="text-gray-800 dark:text-gray-200">{statement}</li>
           ))}
         </ul>
       );
     }
     
-    if ((puzzle as AlgebraPuzzle).equations) {
-      const equations = (puzzle as AlgebraPuzzle).equations;
+    if (algebraPuzzle.equations) {
       return (
         <div className="mt-4 text-center space-y-2">
-          {equations.map((equation, index) => (
+          {algebraPuzzle.equations.map((equation, index) => (
             <div key={index} className="text-xl font-medium text-primary py-1">{equation}</div>
           ))}
         </div>
@@ -132,7 +149,10 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     <div className="puzzle-board animate-scale-in">
       <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="heading-md">{puzzle.title}</h2>
+          <div>
+            <h2 className="heading-md">{puzzle.title}</h2>
+            <div className="text-sm text-gray-500 mt-1">Level {level}</div>
+          </div>
           <div className="flex items-center space-x-2 text-sm">
             <div className="flex items-center bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
               <Clock size={14} className="mr-1.5 text-gray-500" />
@@ -240,11 +260,14 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                   <div>
                     <p className="font-medium text-green-800 dark:text-green-300">Correct!</p>
                     <p className="text-sm text-green-700 dark:text-green-400 mt-1">
-                      Great job solving this puzzle! Ready for another challenge?
+                      Great job solving this puzzle! Ready for the next level?
                     </p>
                     <div className="mt-3 flex space-x-3">
-                      <button className="text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 px-3 py-1 rounded-md transition-colors">
-                        Next Puzzle
+                      <button 
+                        onClick={goToNextPuzzle}
+                        className="text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 px-3 py-1 rounded-md transition-colors"
+                      >
+                        Next Level
                       </button>
                       <button onClick={resetPuzzle} className="text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 dark:text-green-300 dark:bg-green-900/40 dark:hover:bg-green-900/60 px-3 py-1 rounded-md transition-colors">
                         Try Again
@@ -276,24 +299,21 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           )}
         </div>
         
-        {/* Collaborators */}
+        {/* Difficulty indicator */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Collaborators</h3>
-          
+          <h3 className="text-lg font-semibold mb-3">Difficulty</h3>
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-4">
-            <div className="flex flex-wrap gap-4">
-              <UserProfile user={currentUser} size="sm" showStats={false} className="bg-primary/10 rounded-lg p-2" />
-              
-              {collaborators.map(user => (
-                <UserProfile key={user.id} user={user} size="sm" showStats={false} className="bg-gray-100 dark:bg-gray-700 rounded-lg p-2" />
-              ))}
-              
-              <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg p-2 flex items-center space-x-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors">
-                <span>Invite</span>
-                <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                  <UsersIcon size={14} />
-                </div>
-              </button>
+            <div className="flex items-center mb-2">
+              <div className="text-sm font-medium">{puzzle.difficulty}</div>
+              <div className="ml-auto text-xs text-gray-500">Level {level}</div>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full">
+              <div 
+                className="bg-primary h-2 rounded-full" 
+                style={{ 
+                  width: `${puzzle.difficulty === 'easy' ? 25 : puzzle.difficulty === 'medium' ? 50 : puzzle.difficulty === 'hard' ? 75 : 100}%` 
+                }}
+              ></div>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Users, Trophy, BookOpen, LogIn } from 'lucide-react';
+import { Menu, X, ChevronDown, Users, Trophy, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
@@ -66,7 +66,7 @@ const Navbar = () => {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  'nav-link flex items-center space-x-1 transition-colors duration-200',
+                  'nav-link flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200',
                   isActive(link.path)
                     ? 'text-primary'
                     : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
@@ -79,17 +79,6 @@ const Navbar = () => {
               </Link>
             ))}
           </nav>
-
-          {/* User Authentication */}
-          <div className="hidden md:flex items-center space-x-2">
-            <button className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md transition-colors">
-              Login
-            </button>
-            <button className="bg-primary hover:bg-primary/90 text-white text-sm font-medium px-4 py-2 rounded-md transition-all shadow-sm hover:shadow flex items-center space-x-1">
-              <span>Sign Up</span>
-              <ChevronDown size={14} />
-            </button>
-          </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
@@ -128,15 +117,6 @@ const Navbar = () => {
               <span>{link.label}</span>
             </Link>
           ))}
-          <div className="pt-2 mt-2 border-t border-gray-200 dark:border-gray-800">
-            <Link 
-              to="/login" 
-              className="block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
-            >
-              <LogIn size={16} />
-              <span>Login / Sign Up</span>
-            </Link>
-          </div>
         </div>
       </div>
     </header>

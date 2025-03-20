@@ -1,18 +1,23 @@
 
 import React from 'react';
-import { User } from '../types';
 import { cn } from '@/lib/utils';
 import { Trophy, PenTool } from 'lucide-react';
 
 interface UserProfileProps {
-  user: User;
+  name: string;
+  avatar: string;
+  score?: number;
+  solvedPuzzles?: number;
   size?: 'sm' | 'md' | 'lg';
   showStats?: boolean;
   className?: string;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ 
-  user, 
+  name,
+  avatar,
+  score = 0,
+  solvedPuzzles = 0,
   size = 'md',
   showStats = true,
   className
@@ -36,8 +41,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
         "rounded-full overflow-hidden shadow-sm border border-gray-200 dark:border-gray-800"
       )}>
         <img 
-          src={user.avatar} 
-          alt={user.name}
+          src={avatar} 
+          alt={name}
           className="w-full h-full object-cover"
           loading="lazy"
         />
@@ -48,19 +53,19 @@ const UserProfile: React.FC<UserProfileProps> = ({
           textSizes[size],
           "font-medium text-gray-900 dark:text-gray-100"
         )}>
-          {user.name}
+          {name}
         </div>
         
         {showStats && (
           <div className="flex items-center mt-0.5 space-x-3">
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
               <Trophy size={12} className="mr-1 text-yellow-500" />
-              <span>{user.score.toLocaleString()} pts</span>
+              <span>{score.toLocaleString()} pts</span>
             </div>
             
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
               <PenTool size={12} className="mr-1 text-blue-500" />
-              <span>{user.solvedPuzzles} solved</span>
+              <span>{solvedPuzzles} solved</span>
             </div>
           </div>
         )}
