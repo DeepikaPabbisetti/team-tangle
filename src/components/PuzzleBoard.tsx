@@ -30,6 +30,11 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   const [showHint, setShowHint] = useState<boolean>(false);
   const [showSolution, setShowSolution] = useState<boolean>(false);
   
+  // Reset state when the puzzle changes
+  useEffect(() => {
+    resetPuzzle();
+  }, [puzzle]);
+  
   useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTime(prev => prev + 1);
@@ -47,7 +52,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const correctAnswer = 'solution' in puzzle ? String(puzzle.solution) : '';
+    // Get the correct solution based on the puzzle type
+    const correctAnswer = String(getPuzzleSolution(puzzle));
     const isAnswerCorrect = answer.trim().toLowerCase() === correctAnswer.toLowerCase();
     
     setIsCorrect(isAnswerCorrect);
@@ -55,6 +61,14 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     if (isAnswerCorrect) {
       toast.success("Correct! Moving to next level.");
     }
+  };
+  
+  // Helper function to safely get the solution from any puzzle type
+  const getPuzzleSolution = (puzzle: Puzzle): string | number => {
+    if ('solution' in puzzle) {
+      return puzzle.solution;
+    }
+    return '';
   };
   
   const getHint = () => {
@@ -77,6 +91,8 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     const nextLevel = level + 1;
     if (onComplete) {
       onComplete(nextLevel);
+      // No need to manually reset here since the puzzle prop will change
+      // and trigger the useEffect to reset the state
     }
   };
   
@@ -155,7 +171,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           <Eye size={16} className="mr-2 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium">Solution:</p>
-            <p className="mt-1">{puzzle.solution}</p>
+            <p className="mt-1">{getPuzzleSolution(puzzle)}</p>
           </div>
         </div>
       </div>
