@@ -2,7 +2,7 @@
 import React from 'react';
 import { User } from '../types';
 import { cn } from '@/lib/utils';
-import { Trophy, PuzzlePiece } from 'lucide-react';
+import { Trophy, PenTool } from 'lucide-react';
 
 interface UserProfileProps {
   user: User;
@@ -59,7 +59,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
             
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <PuzzlePiece size={12} className="mr-1 text-blue-500" />
+              <PenTool size={12} className="mr-1 text-blue-500" />
               <span>{user.solvedPuzzles} solved</span>
             </div>
           </div>

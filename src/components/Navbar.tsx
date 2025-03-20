@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Users, Trophy, PuzzlePiece, LogIn } from 'lucide-react';
+import { Menu, X, ChevronDown, Users, Trophy, BookOpen, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
@@ -30,8 +30,8 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const navLinks = [
-    { path: '/', label: 'Home', icon: <PuzzlePiece size={16} /> },
-    { path: '/puzzles', label: 'Puzzles', icon: <PuzzlePiece size={16} /> },
+    { path: '/', label: 'Home', icon: <BookOpen size={16} /> },
+    { path: '/puzzles', label: 'Puzzles', icon: <BookOpen size={16} /> },
     { path: '/leaderboard', label: 'Leaderboard', icon: <Trophy size={16} /> },
     { path: '/community', label: 'Community', icon: <Users size={16} /> },
   ];

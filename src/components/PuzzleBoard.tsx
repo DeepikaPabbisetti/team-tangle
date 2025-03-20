@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Puzzle, User } from '../types';
+import { Puzzle, User, ArithmeticPuzzle, GeometryPuzzle, LogicPuzzle, AlgebraPuzzle } from '../types';
 import { cn } from '@/lib/utils';
-import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye } from 'lucide-react';
+import { Lightbulb, Clock, CheckCircle, XCircle, Send, RefreshCw, Eye, UsersIcon } from 'lucide-react';
 import UserProfile from './UserProfile';
 
 interface PuzzleBoardProps {
@@ -79,6 +79,54 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     }
     return "Break down the problem into smaller parts.";
   };
+
+  // Render puzzle-specific content based on type
+  const renderPuzzleContent = () => {
+    if ((puzzle as ArithmeticPuzzle).equation) {
+      return (
+        <div className="mt-4 text-center text-xl font-medium text-primary py-2">
+          {(puzzle as ArithmeticPuzzle).equation}
+        </div>
+      );
+    }
+    
+    if ((puzzle as GeometryPuzzle).shapes) {
+      const shapes = (puzzle as GeometryPuzzle).shapes;
+      return (
+        <div className="mt-4 text-center">
+          <div className="inline-block bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+            {shapes.map((shape, index) => (
+              <span key={index} className="text-2xl mr-2">{shape === 'rectangle' ? '□' : shape === 'circle' ? '○' : shape === 'triangle' ? '△' : '⬡'}</span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
+    if ((puzzle as LogicPuzzle).statements) {
+      const statements = (puzzle as LogicPuzzle).statements;
+      return (
+        <ul className="mt-4 space-y-2 list-disc list-inside">
+          {statements.map((statement, index) => (
+            <li key={index} className="text-gray-800 dark:text-gray-200">{statement}</li>
+          ))}
+        </ul>
+      );
+    }
+    
+    if ((puzzle as AlgebraPuzzle).equations) {
+      const equations = (puzzle as AlgebraPuzzle).equations;
+      return (
+        <div className="mt-4 text-center space-y-2">
+          {equations.map((equation, index) => (
+            <div key={index} className="text-xl font-medium text-primary py-1">{equation}</div>
+          ))}
+        </div>
+      );
+    }
+    
+    return null;
+  };
   
   return (
     <div className="puzzle-board animate-scale-in">
@@ -112,37 +160,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             <p className="text-gray-800 dark:text-gray-200">{puzzle.problemStatement}</p>
             
             {/* Display puzzle specific content based on type */}
-            {'equation' in puzzle && (
-              <div className="mt-4 text-center text-xl font-medium text-primary py-2">
-                {puzzle.equation}
-              </div>
-            )}
-            
-            {'shapes' in puzzle && (
-              <div className="mt-4 text-center">
-                <div className="inline-block bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-                  {puzzle.shapes.map((shape, index) => (
-                    <span key={index} className="text-2xl mr-2">{shape === 'rectangle' ? '□' : shape === 'circle' ? '○' : shape === 'triangle' ? '△' : '⬡'}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {'statements' in puzzle && (
-              <ul className="mt-4 space-y-2 list-disc list-inside">
-                {puzzle.statements.map((statement, index) => (
-                  <li key={index} className="text-gray-800 dark:text-gray-200">{statement}</li>
-                ))}
-              </ul>
-            )}
-            
-            {'equations' in puzzle && (
-              <div className="mt-4 text-center space-y-2">
-                {puzzle.equations.map((equation, index) => (
-                  <div key={index} className="text-xl font-medium text-primary py-1">{equation}</div>
-                ))}
-              </div>
-            )}
+            {renderPuzzleContent()}
           </div>
         </div>
         
@@ -273,7 +291,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
               <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg p-2 flex items-center space-x-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors">
                 <span>Invite</span>
                 <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                  <Users size={14} />
+                  <UsersIcon size={14} />
                 </div>
               </button>
             </div>
